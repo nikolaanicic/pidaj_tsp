@@ -1,0 +1,21 @@
+8110
+Munich,Germany
+Prague,Czech Republic
+Vienna,Austria
+Venice,Italy
+Florence,Italy
+Rome,Italy
+Zagreb,Croatia
+Budapest,Hungary
+Frankfurt,Germany
+Brussels,Belgium
+Amsterdam,Netherlands
+London,United Kingdom
+Paris,France
+Berlin,Germany
+Zurich,Switzerland
+Geneva,Switzerland
+Milan,Italy
+Lyon,France
+Barcelona,Spain
+Madrid,Spain

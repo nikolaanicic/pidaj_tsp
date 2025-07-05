@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use std::fs::File;
-use std::rc::Rc;
+use std::sync::Arc;
 use csv::Reader;
 use crate::location::Location;
 
-pub type Graph = HashMap<Rc<Location>, HashMap<Rc<Location>, i32>>;
+pub type Graph = HashMap<Arc<Location>, HashMap<Arc<Location>, i32>>;
 
 
 pub fn construct_graph(mut reader: Reader<File>) -> Result<Graph, csv::Error> {
@@ -35,8 +35,8 @@ pub fn construct_graph(mut reader: Reader<File>) -> Result<Graph, csv::Error> {
 					country: end_country,
 				};
 
-				let start_location = Rc::new(start_location);
-				let end_location = Rc::new(end_location);
+				let start_location = Arc::new(start_location);
+				let end_location = Arc::new(end_location);
 
 
 				graph.entry(start_location.clone()).or_insert(HashMap::new()).insert(end_location.clone(), distance);
