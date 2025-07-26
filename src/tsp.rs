@@ -4,25 +4,34 @@ use crate::{location::Location, graph::Graph};
 
 
 fn get_random_route(g: &Graph) -> Vec<Arc<Location>>{
+    let mut rng = rand::rng();
+
+    // Start with a shuffled list of cities
     let mut route: Vec<Arc<Location>> = g.keys().cloned().collect();
-	let mut rng = rand::rng();
+    route.shuffle(&mut rng);
 
-	route.shuffle(&mut rng);
+    while !g.get(&route[route.len() - 1])
+             .and_then(|neighbors| neighbors.get(&route[0]))
+             .is_some() {
+        route.shuffle(&mut rng);
+    }
 
+    route.push(route[0].clone());
     route
 }
 
 fn get_route_perturbation(route: &Vec<Arc<Location>>) -> Vec<Arc<Location>>{
-	let mut rng = rand::rng();
-    let indices: Vec<_> = (0..route.len()-1).collect();
+    let mut rng = rand::rng();
+    let indices: Vec<_> = (0..route.len() - 1).collect();
     
     let sampled: Vec<_> = indices.iter().choose_multiple(&mut rng, 2);
     let (i, j) = (*sampled[0], *sampled[1]);
 
-	let mut new_route = route.clone();
-	new_route.swap(i, j);
+    let mut new_route = route[0..route.len() - 1].to_vec();
+    new_route.swap(i, j);
+    new_route.push(new_route[0].clone());
 
-	new_route
+    new_route
 }
 
 

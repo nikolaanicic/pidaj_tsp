@@ -1,21 +1,22 @@
-8110
+8718
 Munich,Germany
-Prague,Czech Republic
-Vienna,Austria
-Venice,Italy
-Florence,Italy
-Rome,Italy
-Zagreb,Croatia
-Budapest,Hungary
+Zurich,Switzerland
 Frankfurt,Germany
-Brussels,Belgium
+Berlin,Germany
+Paris,France
 Amsterdam,Netherlands
 London,United Kingdom
-Paris,France
-Berlin,Germany
-Zurich,Switzerland
+Brussels,Belgium
 Geneva,Switzerland
-Milan,Italy
 Lyon,France
 Barcelona,Spain
 Madrid,Spain
+Rome,Italy
+Florence,Italy
+Milan,Italy
+Venice,Italy
+Zagreb,Croatia
+Vienna,Austria
+Budapest,Hungary
+Prague,Czech Republic
+Munich,Germany
