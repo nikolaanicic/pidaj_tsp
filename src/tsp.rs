@@ -20,20 +20,23 @@ fn get_random_route(g: &Graph) -> Vec<Arc<Location>>{
     route
 }
 
-fn get_route_perturbation(route: &Vec<Arc<Location>>) -> Vec<Arc<Location>>{
+fn get_route_perturbation(route: &Vec<Arc<Location>>) -> Vec<Arc<Location>> {
     let mut rng = rand::rng();
-    let indices: Vec<_> = (0..route.len() - 1).collect();
-    
+    let len = route.len();
+
+    let indices: Vec<_> = (0..len - 1).collect();
     let sampled: Vec<_> = indices.iter().choose_multiple(&mut rng, 2);
     let (i, j) = (*sampled[0], *sampled[1]);
 
-    let mut new_route = route[0..route.len() - 1].to_vec();
+    let mut new_route = route.clone();
     new_route.swap(i, j);
-    new_route.push(new_route[0].clone());
+
+    if i == 0 || j == 0 {
+        new_route[len - 1] = new_route[0].clone();
+    }
 
     new_route
 }
-
 
 fn distance(route: &Vec<Arc<Location>>, g: &Graph) -> i32{
     let mut distance = 0.0 as i32;
