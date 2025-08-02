@@ -5,9 +5,8 @@ use crate::{location::Location, graph::Graph};
 
 fn get_random_route(g: &Graph) -> Vec<Arc<Location>>{
     let mut rng = rand::rng();
-
-    // Start with a shuffled list of cities
     let mut route: Vec<Arc<Location>> = g.keys().cloned().collect();
+    
     route.shuffle(&mut rng);
 
     while !g.get(&route[route.len() - 1])
@@ -20,22 +19,79 @@ fn get_random_route(g: &Graph) -> Vec<Arc<Location>>{
     route
 }
 
-fn get_route_perturbation(route: &Vec<Arc<Location>>) -> Vec<Arc<Location>> {
-    let mut rng = rand::rng();
+fn is_swap_valid(route: &Vec<Arc<Location>>, g: &Graph, i: usize, j: usize) -> bool {
     let len = route.len();
 
-    let indices: Vec<_> = (0..len - 1).collect();
-    let sampled: Vec<_> = indices.iter().choose_multiple(&mut rng, 2);
-    let (i, j) = (*sampled[0], *sampled[1]);
+    // Helper closures for cyclic indexing (exclude last city because it's duplicate)
+    let prev = |x: usize| if x == 0 { len - 2 } else { x - 1 };
+    let next = |x: usize| if x == len - 2 { 0 } else { x + 1 };
 
-    let mut new_route = route.clone();
-    new_route.swap(i, j);
+    // Cities after swap
+    let city_i = &route[j]; // city j moved to position i
+    let city_j = &route[i]; // city i moved to position j
 
-    if i == 0 || j == 0 {
-        new_route[len - 1] = new_route[0].clone();
+    // Check edges around position i
+    if !g.get(&route[prev(i)])
+         .and_then(|nbrs| nbrs.get(city_i))
+         .is_some() {
+        return false;
+    }
+    if !g.get(city_i)
+         .and_then(|nbrs| nbrs.get(&route[next(i)]))
+         .is_some() {
+        return false;
     }
 
-    new_route
+    // Check edges around position j
+    if !g.get(&route[prev(j)])
+         .and_then(|nbrs| nbrs.get(city_j))
+         .is_some() {
+        return false;
+    }
+    if !g.get(city_j)
+         .and_then(|nbrs| nbrs.get(&route[next(j)]))
+         .is_some() {
+        return false;
+    }
+
+    true
+}
+
+fn get_route_perturbation(route: &Vec<Arc<Location>>, g: &Graph) -> Vec<Arc<Location>> {
+    let mut rng = rand::rng();
+    let len = route.len();
+    const MAX_TRIES: usize = 100;
+
+    for _ in 0..MAX_TRIES {
+        let i = rng.random_range(0..len - 1);
+        let mut j = rng.random_range(0..len - 1);
+        while j == i {
+            j = rng.random_range(0..len - 1);
+        }
+
+        if is_swap_valid(route, g, i, j) {
+            let mut new_route = route.clone();
+            new_route.swap(i, j);
+
+            new_route[len - 1] = new_route[0].clone();
+
+            return new_route;
+        }
+    }
+
+    for _ in 0..MAX_TRIES {
+        let i = rng.random_range(0..len - 2);
+        let j = rng.random_range(i + 1..len - 1);
+        let mut new_route = route[0..len - 1].to_vec();
+        new_route[i..=j].reverse();
+        new_route.push(new_route[0].clone());
+        if is_swap_valid(&new_route, g, i, j) {
+            return new_route;
+        }
+    }
+
+    // If no valid swap found, return original route (could do more sophisticated fallback)
+    route.clone()
 }
 
 fn distance(route: &Vec<Arc<Location>>, g: &Graph) -> i32{
@@ -69,7 +125,7 @@ pub fn tsp_annealing(g: Arc<Graph>) -> (i32, Vec<Arc<Location>>){
     let mut iteration = 0;
 
     while temperature > min_temperature && iteration < MAX_ITERATIONS {
-        let next_route = get_route_perturbation(&current_route);
+        let next_route = get_route_perturbation(&current_route, g);
         let next_distance = distance(&next_route, g);
 
         let delta = current_distance as f32 - next_distance as f32;

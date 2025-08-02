@@ -47,7 +47,7 @@ fn main()   {
         }
     }
 
-    println!("{}km", best_distance);
+    println!("{}", best_distance);
 
     for loc in best_route.iter(){
         println!("{}", *loc);
